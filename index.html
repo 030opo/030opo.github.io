@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>個人形象網站</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #000;
+      color: white;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    canvas#bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .header {
+      position: relative;
+      padding: 20px;
+      z-index: 1;
+    }
+
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid #00ffff;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      z-index: 2;
+    }
+
+    .avatar:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px #00ffff;
+    }
+
+    .intro {
+      position: absolute;
+      top: 20px;
+      left: 100px;
+      padding: 10px 20px;
+      background: rgba(0, 255, 255, 0.1);
+      border-radius: 10px;
+      border: 1px solid #00ffff;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 0.5s ease;
+      pointer-events: none;
+    }
+
+    .intro.show {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(0, 255, 255, 0.4);
+      animation: ripple-animation 0.6s ease-out;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    @keyframes ripple-animation {
+      from {
+        transform: scale(0.1);
+        opacity: 1;
+      }
+      to {
+        transform: scale(2);
+        opacity: 0;
+      }
+    }
+
+    .projects {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .project-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid #00ffff44;
+      padding: 20px;
+      border-radius: 15px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+    }
+
+    .project-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 0 25px #00ffff88;
+    }
+
+    .project-title {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      color: #00ffff;
+    }
+
+    .project-desc {
+      font-size: 0.95em;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .project-link {
+      color: #ffdd57;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      .intro {
+        top: 110px;
+        left: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg"></canvas>
+  <div class="header">
+    <img src="your-photo.png" alt="個人頭像" class="avatar" id="avatar">
+    <div class="intro" id="intro">
+      👋 嗨，我是專注創意與科技的開發者！
+    </div>
+  </div>
+
+  <div class="projects">
+    <div class="project-card">
+      <div class="project-title">我的網頁</div>
+      <div class="project-desc">waaaaaagh</div>
+      <a href="https://github.com/030opo/" target="_blank" class="project-link">前往 GitHub</a>
+    </div>
+  </div>
+
+  <script>
+    const avatar = document.getElementById('avatar');
+    const intro = document.getElementById('intro');
+
+    avatar.addEventListener('click', (e) => {
+      intro.classList.toggle('show');
+
+      const ripple = document.createElement('div');
+      ripple.className = 'ripple';
+      document.body.appendChild(ripple);
+
+      const rect = avatar.getBoundingClientRect();
+      ripple.style.left = `${rect.left + rect.width / 2}px`;
+      ripple.style.top = `${rect.top + rect.height / 2}px`;
+      ripple.style.width = ripple.style.height = '100px';
+
+      setTimeout(() => ripple.remove(), 600);
+    });
+
+    // 背景動畫
+    const canvas = document.getElementById('bg');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    for (let i = 0; i < 100; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2 + 1,
+        dx: (Math.random() - 0.5) * 0.5,
+        dy: (Math.random() - 0.5) * 0.5
+      });
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#00ffff';
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        p.x += p.dx;
+        p.y += p.dy;
+
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>
